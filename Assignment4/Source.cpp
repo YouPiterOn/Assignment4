@@ -1,10 +1,18 @@
 #include <iostream>
+#include <Windows.h>
 
 using namespace std;
 
+
+
+typedef char* (__stdcall* f_cypher)(char* source, int key);
+HINSTANCE hGetProcIDDLL = LoadLibrary("D:\\VSrepo\\Assignment4\\x64\\Debug\\CaesarCypher.dll");
+f_cypher encrypt = (f_cypher)GetProcAddress(hGetProcIDDLL, "encrypt");
+f_cypher decrypt = (f_cypher)GetProcAddress(hGetProcIDDLL, "decrypt");
+
 class FileReader {
 public:
-	string read(string path) {
+	static string read(string path) {
 		FILE* myFile;
 		const char* cPath = path.c_str();
 		fopen_s(&myFile, cPath, "r");
@@ -24,7 +32,7 @@ public:
 
 class FileWriter {
 public:
-	void write(string path, string text) {
+	static void write(string path, string text) {
 		FILE* myFile;
 		const char* cPath = path.c_str();
 		fopen_s(&myFile, cPath, "w");
@@ -40,10 +48,44 @@ public:
 	}
 };
 
+class Interface : public FileReader, public FileWriter {
+public:
+	static void Run() {
+		cout << "Chose the mode (normal or secret):" << endl;
+		string mode = "";
+		cin >> mode;
+		if (mode == "normal") {
+			cout << "Chose the operation (encrypt or decrypt):" << endl;
+			string operation = "";
+			cin >> operation;
+			cout << "Enter input file path:" << endl;
+			string inputPath = "";
+			cin >> inputPath;
+			cout << "Enter output file path:" << endl;
+			string outputPath = "";
+			cin >> outputPath;
+			cout << "Enter encryption key:" << endl;
+			int key = 0;
+			cin >> key;
+			string rText = read(inputPath);
+			char* input = (char*)rText.c_str();
+			if (operation == "encrypt") {
+				char* output = encrypt(input, key);
+				write(outputPath, (string)output);
+			}
+			else if (operation == "decrypt") {
+				char* output = decrypt(input, key);
+				write(outputPath, (string)output);
+			}
+		}
+		else if (mode == "secret") {
+
+		}
+	}
+};
+
 int main() {
-	FileReader* reader = new FileReader;
-	FileWriter* writer = new FileWriter;
-	writer->write("D:\\VSrepo\\doc.txt", "text++");
-	cout << reader->read("D:\\VSrepo\\doc.txt");
+	Interface* ui = new Interface();
+	ui->Run();
 	return 0;
 }
