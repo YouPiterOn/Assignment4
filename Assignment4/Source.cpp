@@ -79,7 +79,17 @@ public:
 			}
 		}
 		else if (mode == "secret") {
-
+			cout << "Enter input file path:" << endl;
+			string inputPath = "";
+			cin >> inputPath;
+			cout << "Enter output file path:" << endl;
+			string outputPath = "";
+			cin >> outputPath;
+			int key = (rand() % 26) + 1;
+			string rText = read(inputPath);
+			char* input = (char*)rText.c_str();
+			char* output = encrypt(input, key);
+			write(outputPath, (string)output);
 		}
 	}
 };
